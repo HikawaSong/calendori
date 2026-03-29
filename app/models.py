@@ -38,5 +38,7 @@ class Event(Base):
     dates = Column(JSON, nullable=True)
     place = Column(String(255), nullable=True)
     category = Column(String(255), nullable=True)
+    thumbnail_url = Column(String(500), nullable=True)
+    event_url = Column(String(500), nullable=True)
 
     artists = relationship("Band", secondary=event_artists, back_populates="events")

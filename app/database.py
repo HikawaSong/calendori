@@ -10,7 +10,7 @@ user = os.getenv("DB_USER", "root")
 password = os.getenv("DB_PASSWORD")
 host = os.getenv("DB_HOST", "127.0.0.1")
 port = os.getenv("DB_PORT", "3306")
-db_name = os.getenv("DB_NAME", "clendori")
+db_name = os.getenv("DB_NAME", "calendori")
 
 
 # 1. 定义连接字符串
