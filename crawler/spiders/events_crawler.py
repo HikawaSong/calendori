@@ -9,6 +9,7 @@ from fake_useragent import UserAgent
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import Event, Artist
+import unicodedata
 
 
 SOURCE_URL = os.getenv("EVENTS_SOURCE_URL", "https://bang-dream.com/events")
@@ -70,6 +71,8 @@ def parse_events(soup: BeautifulSoup) -> List[Dict]:
 
         raw_date_text = get_val_by_label(article, "開催日")
         event_dates = convert_raw_text_to_iso_dates(raw_date_text)
+        # 取第一个日期作为活动开始日期
+        event_start_date = event_dates[0] if event_dates else None
 
         # --- 组装数据 ---
         page_data.append(
@@ -80,7 +83,8 @@ def parse_events(soup: BeautifulSoup) -> List[Dict]:
                 "category": category,
                 "place": place,
                 "artists": artists,  # List类型
-                "dates": event_dates,  # List类型，例如 ["2026-03-20", "2026-03-21"]
+                "dates": event_dates,  # List类型，例 ["2026-03-20", "2026-03-21"]
+                "event_start_date": event_start_date,
             }
         )
 
@@ -101,6 +105,13 @@ def convert_raw_text_to_iso_dates(raw_text: str) -> list[str]:
     日期转换：处理 '2026年3月20日(金)・21日(土)' 这种复杂格式
     """
     # 提取年份，默认取 2026 (或者从字符串动态提)
+
+    if not raw_text:
+        return []
+
+    # 全角转半角
+    raw_text = unicodedata.normalize("NFKC", raw_text)
+
     year_match = re.search(r"(\d{4})", raw_text)
     year = year_match.group(1) if year_match else str(datetime.now().year)
 
@@ -155,6 +166,7 @@ def save_events_to_db(db: Session, scraped_data: list[dict]):
         new_event = Event(
             title=item["title"],
             dates=item["dates"],  # 传入 Python List，SQLAlchemy JSON 自动处理
+            event_start_date=item["event_start_date"],
             place=item["place"],
             category=item["category"],
             event_url=item["event_url"],
