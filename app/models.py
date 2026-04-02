@@ -12,19 +12,22 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from .database import Base
+import uuid
 
 
 event_artists = Table(
     "event_artists",
     Base.metadata,
-    Column("event_id", Integer, ForeignKey("events.id"), primary_key=True),
-    Column("band_id", Integer, ForeignKey("bands.id"), primary_key=True),
+    Column("event_id", String(36), ForeignKey("events.id"), primary_key=True),
+    Column("artist_id", String(36), ForeignKey("artist.id"), primary_key=True),
 )
 
 
-class Band(Base):
-    __tablename__ = "bands"
-    id = Column(Integer, primary_key=True, index=True)
+class Artist(Base):
+    __tablename__ = "artist"
+    id = Column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True
+    )
     name = Column(String(100), unique=True, index=True)
     description = Column(Text)
 
@@ -33,7 +36,9 @@ class Band(Base):
 
 class Event(Base):
     __tablename__ = "events"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True
+    )
     title = Column(String(255), nullable=False)
     dates = Column(JSON, nullable=True)
     place = Column(String(255), nullable=True)
@@ -41,4 +46,4 @@ class Event(Base):
     thumbnail_url = Column(String(500), nullable=True)
     event_url = Column(String(500), nullable=True)
 
-    artists = relationship("Band", secondary=event_artists, back_populates="events")
+    artists = relationship("Artist", secondary=event_artists, back_populates="events")

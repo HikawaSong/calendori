@@ -8,7 +8,7 @@ import asyncio
 from fake_useragent import UserAgent
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from app.models import Event, Band
+from app.models import Event, Artist
 
 
 SOURCE_URL = os.getenv("EVENTS_SOURCE_URL", "https://bang-dream.com/events")
@@ -129,7 +129,7 @@ def save_events_to_db(db: Session, scraped_data: list[dict]):
     new_events_count = 0
 
     # 1.查出 DB 里现有的所有乐队，放在内存
-    existing_bands = {b.name: b for b in db.query(Band).all()}
+    existing_artists = {a.name: a for a in db.query(Artist).all()}
 
     # 2. 性能优化：查出所有已存在的 Event 标题（用于快速排重）
     existing_event_titles = {e.title for e in db.query(Event.title).all()}
@@ -140,16 +140,16 @@ def save_events_to_db(db: Session, scraped_data: list[dict]):
             continue
 
         # --- B. 处理关联的复数乐队 ---
-        current_event_bands = []
+        current_event_artists = []
         for b_name in item["artists"]:
-            if b_name in existing_bands:
-                band_obj = existing_bands[b_name]
+            if b_name in existing_artists:
+                artist_obj = existing_artists[b_name]
             else:
-                band_obj = Band(name=b_name)
-                db.add(band_obj)
+                artist_obj = Artist(name=b_name)
+                db.add(artist_obj)
                 db.flush()  # 立即获取 ID，但不提交事务
-                existing_bands[b_name] = band_obj
-            current_event_bands.append(band_obj)
+                existing_artists[b_name] = artist_obj
+            current_event_artists.append(artist_obj)
 
         # --- C. 创建 Event 对象 ---
         new_event = Event(
@@ -159,7 +159,7 @@ def save_events_to_db(db: Session, scraped_data: list[dict]):
             category=item["category"],
             event_url=item["event_url"],
             thumbnail_url=item["thumbnail_url"],  #
-            artists=current_event_bands,  # 关联复数 Band 对象，中间表自动填充
+            artists=current_event_artists,  # 关联复数 Artist 对象，中间表自动填充
         )
         db.add(new_event)
         new_events_count += 1
