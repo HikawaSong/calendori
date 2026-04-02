@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import (
     JSON,
     Column,
@@ -11,6 +13,7 @@ from sqlalchemy import (
     Table,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import validates
 from .database import Base
 import uuid
 
@@ -45,5 +48,5 @@ class Event(Base):
     category = Column(String(255), nullable=True)
     thumbnail_url = Column(String(500), nullable=True)
     event_url = Column(String(500), nullable=True)
-
+    event_start_date = Column(Date, nullable=True)
     artists = relationship("Artist", secondary=event_artists, back_populates="events")
