@@ -1,8 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app
-from app.database import Base, engine, SessionLocal
+from app.database import Base
 from app.models import Artist, Event
 import os
 from app.database import get_db
@@ -15,6 +16,9 @@ db_name = os.getenv("DB_NAME", "calendori")
 test_db_name = os.getenv("TEST_DB_NAME", "calendori_test")
 
 TEST_DATABASE_URL = f"mysql+pymysql://{user}:{password}@{host}:{port}/{test_db_name}"
+TEST_DB_URL = os.getenv("DATABASE_URL", TEST_DATABASE_URL)
+test_engine = create_engine(TEST_DB_URL)
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
 def create_test_data() -> list:
@@ -54,11 +58,11 @@ def setup_db():
     """
     清空并重新建表，注入元数据
     """
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.drop_all(bind=test_engine)
+    Base.metadata.create_all(bind=test_engine)
 
     # 注入基础元数据
-    session = SessionLocal()
+    session = TestSessionLocal()
     try:
         data = create_test_data()
         session.add_all(data)
@@ -69,7 +73,7 @@ def setup_db():
     finally:
         session.close()
 
-    yield engine
+    yield test_engine
 
 
 @pytest.fixture(scope="function")
@@ -80,7 +84,7 @@ def db_session(setup_db):
     connection = setup_db.connect()
     # 开启事务
     transaction = connection.begin()
-    session = SessionLocal(bind=connection)
+    session = TestSessionLocal(bind=connection)
 
     yield session
 
