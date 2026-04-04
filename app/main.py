@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-
+import uvicorn
 from .database import init_db
-from .routers import events
+from .routers import base, events, projects
 
 
 # --- 1. 生命周期 ---
@@ -26,13 +26,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(base.router)
 app.include_router(events.router)
+app.include_router(projects.router)
 
 
-@app.get("/")
-async def root():
-    return {
-        "status": "online",
-        "project": "Calendori",
-        "message": "Welcome to the Bandori Live Calendar API",
-    }
+if __name__ == "__main__":
+
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)

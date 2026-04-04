@@ -37,6 +37,6 @@ jobs:
 
     - name: Run Tests
       env:
-        DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/calendori_test
+        DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/calendori_test?charset=utf8mb4
       run: |
         python -m pytest tests/integration/ -v
