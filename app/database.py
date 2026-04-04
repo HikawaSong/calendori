@@ -19,7 +19,9 @@ db_name = os.getenv("DB_NAME", "calendori")
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{user}:{password}@{host}:{port}/{db_name}"
 
 # 2. 创建引擎
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, echo=True, connect_args={"charset": "utf8mb4"}
+)
 
 # 3. 创建会话工厂
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
