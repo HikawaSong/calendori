@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base
@@ -65,6 +65,17 @@ def setup_db():
     """
     清空并重新建表，注入元数据
     """
+
+    with test_engine.connect() as conn:
+        # 1. 强制连接层使用 utf8mb4
+        conn.execute(text("SET NAMES utf8mb4;"))
+        conn.execute(
+            text(
+                "ALTER DATABASE calendori_test CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;"
+            )
+        )
+        conn.commit()
+
     Base.metadata.drop_all(bind=test_engine)
     Base.metadata.create_all(bind=test_engine)
 
