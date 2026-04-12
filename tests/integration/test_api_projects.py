@@ -20,9 +20,12 @@ def test_create_project_for_event(client, db_session):
     response = client.post("/api/v1/projects/", json=project_data)
     assert response.status_code == 201, f"创建失败: {response.text}"
 
-    print("\n[DEBUG] Status Code:", response.status_code)
-    print("[DEBUG] Response JSON:", response.json())
+    res_json = response.json()
 
-    assert response.status_code == 201
-    assert response.json()["name"] == "Project A"
-    assert response.json()["event_id"] == event_id
+    assert res_json["success"] is True
+    assert res_json["message"] is not None
+
+    project_out = res_json["data"]
+    assert project_out["name"] == "Project A"
+    assert project_out["event_id"] == event_id
+    assert project_out["project_type"] == "花篮"
