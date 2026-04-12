@@ -13,8 +13,12 @@ def test_read_main():
 def test_find_events(client):
     response = client.get("/api/v1/events/")
     assert response.status_code == 200
-    data = response.json()
+    res_json = response.json()
 
+    assert res_json["success"] is True
+    assert res_json["message"] is not None
+
+    data = res_json["data"]
     assert len(data) == 2
 
     first_event = data[0]
