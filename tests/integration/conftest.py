@@ -65,9 +65,7 @@ def setup_db():
     """
     清空并重新建表，注入元数据
     """
-
     with test_engine.connect() as conn:
-        # 1. 强制连接层使用 utf8mb4
         conn.execute(text("SET NAMES utf8mb4;"))
         conn.execute(
             text(
@@ -80,7 +78,7 @@ def setup_db():
     Base.metadata.create_all(bind=test_engine)
 
     # 注入基础元数据
-    session = TestSessionLocal(bind=test_engine)
+    session = TestSessionLocal()
     try:
         data = create_test_data()
         session.add_all(data)

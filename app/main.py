@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import uvicorn
 from .database import init_db
-from .routers import base, events, projects
+from .routers import base, events, projects, users
 
 
 # --- 1. 生命周期 ---
@@ -29,6 +29,7 @@ app = FastAPI(
 app.include_router(base.router)
 app.include_router(events.router)
 app.include_router(projects.router)
+app.include_router(users.router)
 
 
 if __name__ == "__main__":
