@@ -44,3 +44,21 @@ class ProjectOut(ProjectBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class EventCalendarDot(BaseModel):
+    date: str
+    type: str
+    bands: List[str]
+
+
+class EventDailyCard(BaseModel):
+    id: str
+    type: str  # 例如 "Live" 或 "Event"
+    title: str  # 活动标题
+    place: str  # 地点
+    participants: int  # 参与人数
+    sub_events: int  # 子活动数量
+
+    class Config:
+        from_attributes = True
