@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy import (
     JSON,
     Column,
@@ -62,6 +60,7 @@ class Event(Base, TimestampMixin):
     is_published = Column(Boolean, default=True)
     artists = relationship("Artist", secondary=event_artists, back_populates="events")
     projects = relationship("Project", back_populates="event")
+    users = relationship("EventRegistration", back_populates="event")
 
 
 class User(Base, TimestampMixin):
@@ -78,6 +77,8 @@ class User(Base, TimestampMixin):
     is_active = Column(Boolean, default=True)  # 用户是否激活
     is_admin = Column(Boolean, default=False)  # 是否管理员
     last_login = Column(DateTime, nullable=True)  # 上次登录时间
+
+    events = relationship("EventRegistration", back_populates="user")
 
     __table_args__ = (
         UniqueConstraint("openid", "platform", name="uix_openid_platform"),
@@ -115,3 +116,15 @@ class ProjectRegistration(Base, TimestampMixin):
 
     project = relationship("Project", back_populates="registrations")
     user = relationship("User")
+
+
+class EventRegistration(Base, TimestampMixin):
+    __tablename__ = "event_registrations"
+
+    event_id = Column(String(36), ForeignKey("events.id"), primary_key=True)
+    user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
+
+    registration_data = Column(JSON)
+
+    event = relationship("Event", back_populates="users")
+    user = relationship("User", back_populates="events")
