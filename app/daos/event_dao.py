@@ -57,3 +57,27 @@ def get_reg_user_count_by_event_ids(db: Session, event_ids: list[str]) -> dict:
     )
 
     return {row[0]: row[1] for row in rows}
+
+
+def get_reg_users_by_event_id(
+    db: Session, event_id: int, limit: int = 20, offset: int = 0
+):
+    """根据活动 ID 查询报名用户列表"""
+    registrations = (
+        db.query(EventRegistration)
+        .options(joinedload(EventRegistration.user))
+        .filter(EventRegistration.event_id == event_id)
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+    return registrations
+
+
+def get_reg_users_id_by_event_id(db: Session, event_id: int):
+    """根据活动 ID 查询报名用户 ID 列表"""
+    return (
+        db.query(EventRegistration.user_id)
+        .filter(EventRegistration.event_id == event_id)
+        .all()
+    )

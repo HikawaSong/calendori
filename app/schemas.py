@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 from datetime import date
 
@@ -62,3 +62,44 @@ class EventDailyCard(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# --- 1. 参与者简要信息 ---
+class ParticipantItem(BaseModel):
+    id: str
+    nickname: str
+    avatar_url: str
+    is_admin: bool = False
+
+
+# --- 2. 子活动简要信息 ---
+class SubEventItem(BaseModel):
+    id: str
+    title: str
+    time: str
+    place: str
+    image: str  # 子活动的封面图
+    participants_count: int  # 报名这个子活动的人数
+
+
+class EventDetailResponse(BaseModel):
+    # 基础信息
+    id: str
+    header_image: str
+    title: str
+    place: str
+    date: date
+    time_display: Optional[str] = None
+    event_url: str
+    category: str
+    # 参与者相关
+    participants_count: int  # 总报名人数
+    participants: List[
+        ParticipantItem
+    ]  # 注意：只返回前 10 个参与者的简要信息，用于展示头像和昵称等
+
+    # 子活动相关
+    sub_events: List[SubEventItem]  # 关联的子活动列表
+
+    # 当前用户相关
+    is_current_user_joined: bool  # 当前请求这个接口的用户，是否已经报名

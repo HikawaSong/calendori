@@ -43,9 +43,13 @@ def init_db():
     from . import models
 
     try:
-        Base.metadata.create_all(bind=engine)
-        print("✅ 表结构初始化成功！")
-        print("📊 当前已创建/验证的表: ", Base.metadata.tables.keys())
+        with engine.connect() as conn:
+            import sqlalchemy
+
+            conn.execute(sqlalchemy.text("SELECT 1"))
+        print("✅ 数据库连接正常！")
+
+        # Base.metadata.create_all(bind=engine)
     except Exception as e:
         print(f"❌ 初始化失败，请检查数据库连接或权限。")
         print(f"错误详情: {e}")

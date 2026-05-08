@@ -36,6 +36,13 @@ jobs:
         pip install pytest httpx 
         
 
+    - name: Migrate Database
+      env:
+        DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/calendori_test?charset=utf8mb4
+      run: |
+        python -m alembic upgrade head
+
+      
     - name: Run Tests
       env:
         DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/calendori_test?charset=utf8mb4 --collation-server=utf8mb4_unicode_ci

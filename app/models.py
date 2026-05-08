@@ -98,9 +98,11 @@ class Project(Base, TimestampMixin):
         nullable=True,
         index=True,
     )
+    place = Column(String(255), nullable=True)
     creator_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     description = Column(Text, nullable=True)
     form_config = Column(JSON, nullable=True)
+    is_deleted = Column(Boolean, default=False, nullable=False)
 
     event = relationship("Event", back_populates="projects")
     registrations = relationship("ProjectRegistration", back_populates="project")
