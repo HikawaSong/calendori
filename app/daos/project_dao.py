@@ -34,3 +34,18 @@ def get_project_counts_by_event_ids(db: Session, event_ids: list[str]) -> dict:
     )
 
     return {row[0]: row[1] for row in rows}
+
+
+def get_reg_user_counts_by_project_ids(db: Session, project_ids: list[str]) -> dict:
+    """根据项目 ID 列表，批量查询报名人数，返回 {project_id: count} 的字典"""
+    if not project_ids:
+        return {}
+
+    rows = (
+        db.query(Project.id, func.count(Project.reg_users))
+        .filter(Project.id.in_(project_ids))
+        .group_by(Project.id)
+        .all()
+    )
+
+    return {row[0]: row[1] for row in rows}
