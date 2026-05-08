@@ -21,7 +21,7 @@ async def create_project(
     # TODO:暂时硬编码
     test_creator = db.query(User).first()
 
-    new_project = create_new_project(db, project_in.dict(), test_creator.id)
+    new_project = create_new_project(db, project_in.model_dump(), test_creator.id)
 
     return ResponseModel.success_response(data=new_project)
 
